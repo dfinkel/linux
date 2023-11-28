@@ -1322,11 +1322,13 @@ PAGE_SIZE multiple when read back.
 	reclaim induced by memory.reclaim.
 
   memory.peak
-	A read-only single value file which exists on non-root
-	cgroups.
+	A read-write single value file which exists on non-root cgroups.
 
-	The max memory usage recorded for the cgroup and its
-	descendants since the creation of the cgroup.
+	The max memory usage recorded for the cgroup and its descendants since
+	either the creation of the cgroup or the most recent reset.
+
+        A write of the string "global_reset\n" to this file resets it to the
+        current memory usage. All other values will return EINVAL.
 
   memory.oom.group
 	A read-write single value file which exists on non-root
@@ -1652,11 +1654,13 @@ PAGE_SIZE multiple when read back.
 	Healthy workloads are not expected to reach this limit.
 
   memory.swap.peak
-	A read-only single value file which exists on non-root
-	cgroups.
+	A read-write single value file which exists on non-root cgroups.
 
-	The max swap usage recorded for the cgroup and its
-	descendants since the creation of the cgroup.
+	The max swap usage recorded for the cgroup and its descendants since
+	the creation of the cgroup or the most recent reset.
+
+        A write of the string "global_reset\n" to this file resets it to the
+        current swap usage. All other values will return EINVAL.
 
   memory.swap.max
 	A read-write single value file which exists on non-root
