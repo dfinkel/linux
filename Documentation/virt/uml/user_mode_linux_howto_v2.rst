@@ -985,15 +985,31 @@ module and available inside the virtual machine, and insmod it.
 
 Now all you need to do is run mount::
 
-   # mount none /mnt/host -t hostfs
+   # mount / /mnt/host -t hostfs
 
 will mount the host's ``/`` on the virtual machine's ``/mnt/host``.
 If you don't want to mount the host root directory, then you can
 specify a subdirectory to mount with the -o switch to mount::
 
-   # mount none /mnt/home -t hostfs -o /home
+   # mount /home /mnt/home -t hostfs
 
-will mount the host's /home on the virtual machine's /mnt/home.
+will mount the host's ``/home`` on the virtual machine's ``/mnt/home``.
+
+limiting hostfs access
+----------------------
+
+When working with hostfs, one can specify a host directory to prefix hostfs
+mount sources with when resolving the host-side of the hostfs mount by setting
+the ``hostfs`` kernel commandline option. So one would set::
+
+   hostfs=/path/to/umlstuff
+
+which will make this::
+
+  # mount /home /mnt/hosthome -t hostfs
+
+reflect the contents of ``/path/to/umlstuff/home`` on the host at
+``/mnt/hosthome`` inside UML.
 
 hostfs as the root filesystem
 -----------------------------
@@ -1009,7 +1025,7 @@ an existing root_fs file::
 You need to change the filesystem type of ``/`` in ``etc/fstab`` to be
 'hostfs', so that line looks like this::
 
-   /dev/ubd/0       /        hostfs      defaults          1   1
+   /path/to/uml/root/dir       /        hostfs      defaults          1   1
 
 Then you need to chown to yourself all the files in that directory
 that are owned by root.  This worked for me::
@@ -1019,7 +1035,7 @@ that are owned by root.  This worked for me::
 Next, make sure that your UML kernel has hostfs compiled in, not as a
 module.  Then run UML with the boot device pointing at that directory::
 
-   ubd0=/path/to/uml/root/directory
+   root=/path/to/uml/root/dir rootfstype=hostfs
 
 UML should then boot as it does normally.
 
@@ -1031,6 +1047,10 @@ host (outside UML). As a result, if a file is changed without UML's
 knowledge, UML will not know about it and its own in-memory cache of
 the file may be corrupt. While it is possible to fix this, it is not
 something which is being worked on at present.
+
+As of writing (Linux 6.11) the argument to ``hostfs`` works by textually
+concatenating the argument as a prefix when opening a path, so it is not useful
+as a security mechanism.
 
 Tuning UML
 ============
